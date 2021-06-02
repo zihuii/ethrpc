@@ -41,17 +41,24 @@ func TestSyncingUnmarshal(t *testing.T) {
 	require.NotNil(t, err)
 
 	data := []byte(`{
-		"startingBlock": "0x384",
-		"currentBlock": "0x386",
-		"highestBlock": "0x454"
+		"currentBlock": "0xbf6f1b",
+		"highestBlock": "0xbf8f93",
+		"knownStates": "0x26656fa5",
+		"pulledStates": "0x26656fa5",
+		"startingBlock": "0xbeda2c"
 	}`)
 
 	err = json.Unmarshal(data, syncing)
+	expected := Syncing{
+		IsSyncing:     true,
+		CurrentBlock:  12545819,
+		HighestBlock:  12554131,
+		KnownStates:   644181925,
+		PulledStates:  644181925,
+		StartingBlock: 12507692,
+	}
 	require.Nil(t, err)
-	require.True(t, syncing.IsSyncing)
-	require.Equal(t, 900, syncing.StartingBlock)
-	require.Equal(t, 902, syncing.CurrentBlock)
-	require.Equal(t, 1108, syncing.HighestBlock)
+	require.Equal(t, expected, *syncing)
 }
 
 func TestTransactionUnmarshal(t *testing.T) {

@@ -234,7 +234,7 @@ func (s *EthRPCTestSuite) TestEthProtocolVersion() {
 
 func (s *EthRPCTestSuite) TestEthSyncing() {
 	s.registerResponseError(errors.New("Error"))
-	syncing, err := s.rpc.EthSyncing()
+	_, err := s.rpc.EthSyncing()
 	s.Require().NotNil(err)
 
 	expected := &Syncing{
@@ -246,23 +246,27 @@ func (s *EthRPCTestSuite) TestEthSyncing() {
 	s.registerResponse(`false`, func(body []byte) {
 		s.methodEqual(body, "eth_syncing")
 	})
-	syncing, err = s.rpc.EthSyncing()
+	syncing, err := s.rpc.EthSyncing()
 
 	s.Require().Nil(err)
 	s.Require().Equal(expected, syncing)
 
 	httpmock.Reset()
 	s.registerResponse(`{
-		"currentBlock": "0x8c3be",
-		"highestBlock": "0x9bb3b",
-		"startingBlock": "0x0"
+		"currentBlock": "0xbf6f1b",
+		"highestBlock": "0xbf8f93",
+		"knownStates": "0x26656fa5",
+		"pulledStates": "0x26656fa5",
+		"startingBlock": "0xbeda2c"
 	}`, func(body []byte) {})
 
 	expected = &Syncing{
 		IsSyncing:     true,
-		CurrentBlock:  574398,
-		HighestBlock:  637755,
-		StartingBlock: 0,
+		CurrentBlock:  12545819,
+		HighestBlock:  12554131,
+		KnownStates:   644181925,
+		PulledStates:  644181925,
+		StartingBlock: 12507692,
 	}
 	syncing, err = s.rpc.EthSyncing()
 	s.Require().Nil(err)
@@ -886,6 +890,76 @@ func (s *EthRPCTestSuite) TestEthGetTransactionReceipt() {
 		Data:             "0x9da86521f54f8e4747f86593145f7ec22f2ab4c8e32288c378ed503f253b6426",
 		Topics:           []string{"0x78e4fc71ff7e525b3b4660a76336a2046232fd9bba9c65abb22fa3d07d6e7066"},
 	}, receipt.Logs[0])
+}
+
+func (s *EthRPCTestSuite) TestEthPendingTransactions() {
+	result := `[]`
+	s.registerResponse(result, func(body []byte) {
+		s.methodEqual(body, "eth_pendingTransactions")
+	})
+
+	transactions, err := s.rpc.EthPendingTransactions()
+	s.Require().Nil(err)
+	s.Require().Empty(transactions)
+
+	result = `[{
+      "blockHash": null,
+      "blockNumber": null,
+      "from": "0x201354729f8d0f8b64e9a0c353c672c6a66b3857",
+      "gas": "0x1103c",
+      "gasPrice": "0x3e95ba80",
+      "hash": "0xa699d515b0c97fa53133546accb77d9e753dfeda281c0cd61a84a2d192ae4146",
+      "input": "0xe1fa8e84e0c80e8de12b443858194ac817267a946ccf48644465c1c7e447d49b65fd14ec",
+      "nonce": "0x5d112",
+      "to": "0xd10e3be2bc8f959bc8c41cf65f60de721cf89adf",
+      "transactionIndex": null,
+      "value": "0x0",
+      "type": "0x0",
+      "v": "0x2a",
+      "r": "0xbc7e01d012049b5b73aa7d222aebae3e7d059d49fa65d1c5d8ffc7777c4ee9e8",
+      "s": "0x2f5e92caa2012f0e51e4c61b231bbfc062d90d9caa4096033ebcd1d367d50185"
+    }, {
+      "blockHash": null,
+      "blockNumber": null,
+      "from": "0x201354729f8d0f8b64e9a0c353c672c6a66b3857",
+      "gas": "0x1103c",
+      "gasPrice": "0x3e95ba80",
+      "hash": "0x3dc67f2fa854e980c14205bb09aaeca92d7126c3cd4253807aa63aad5435f349",
+      "input": "0xe1fa8e8496abe34815501481e7e15de7b7fa982c3c0c7d1e6a9b218e8f6c69635118ed69",
+      "nonce": "0x5d113",
+      "to": "0xd10e3be2bc8f959bc8c41cf65f60de721cf89adf",
+      "transactionIndex": null,
+      "value": "0x0",
+      "type": "0x0",
+      "v": "0x29",
+      "r": "0xbfa68b124804009350b381f0b5ff95e982583c47fae2207f8e31774c7bbc8a25",
+      "s": "0x1474d996c281920a3eef34de21dd71bc6508f7f5382557a69eae1a64e1b8d351"
+    }]`
+	s.registerResponse(result, func(body []byte) {
+		s.methodEqual(body, "eth_pendingTransactions")
+	})
+
+	expected := []Transaction{{
+		From:     "0x201354729f8d0f8b64e9a0c353c672c6a66b3857",
+		Gas:      69692,
+		GasPrice: *big.NewInt(1050000000),
+		Hash:     "0xa699d515b0c97fa53133546accb77d9e753dfeda281c0cd61a84a2d192ae4146",
+		Input:    "0xe1fa8e84e0c80e8de12b443858194ac817267a946ccf48644465c1c7e447d49b65fd14ec",
+		Nonce:    381202,
+		To:       "0xd10e3be2bc8f959bc8c41cf65f60de721cf89adf",
+	}, {
+		From:     "0x201354729f8d0f8b64e9a0c353c672c6a66b3857",
+		Gas:      69692,
+		GasPrice: *big.NewInt(1050000000),
+		Hash:     "0x3dc67f2fa854e980c14205bb09aaeca92d7126c3cd4253807aa63aad5435f349",
+		Input:    "0xe1fa8e8496abe34815501481e7e15de7b7fa982c3c0c7d1e6a9b218e8f6c69635118ed69",
+		Nonce:    381203,
+		To:       "0xd10e3be2bc8f959bc8c41cf65f60de721cf89adf",
+	}}
+
+	transactions, err = s.rpc.EthPendingTransactions()
+	s.Require().Nil(err)
+	s.Require().ElementsMatch(expected, transactions)
 }
 
 func (s *EthRPCTestSuite) TestGetTransaction() {

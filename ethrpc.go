@@ -444,6 +444,18 @@ func (rpc *EthRPC) EthGetTransactionReceipt(hash string) (*TransactionReceipt, e
 	return transactionReceipt, nil
 }
 
+// EthPendingTransactions returns a list of pending transactions.
+func (rpc *EthRPC) EthPendingTransactions() ([]Transaction, error) {
+	transactions := []Transaction{}
+
+	err := rpc.call("eth_pendingTransactions", &transactions)
+	if err != nil {
+		return nil, err
+	}
+
+	return transactions, nil
+}
+
 // EthGetCompilers returns a list of available compilers in the client.
 func (rpc *EthRPC) EthGetCompilers() ([]string, error) {
 	compilers := []string{}

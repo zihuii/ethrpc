@@ -13,6 +13,8 @@ type Syncing struct {
 	StartingBlock int
 	CurrentBlock  int
 	HighestBlock  int
+	KnownStates   int
+	PulledStates  int
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
@@ -180,6 +182,8 @@ type proxySyncing struct {
 	StartingBlock hexInt `json:"startingBlock"`
 	CurrentBlock  hexInt `json:"currentBlock"`
 	HighestBlock  hexInt `json:"highestBlock"`
+	KnownStates   hexInt `json:"knownStates"`
+	PulledStates  hexInt `json:"pulledStates"`
 }
 
 type proxyTransaction struct {
