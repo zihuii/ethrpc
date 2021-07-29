@@ -230,6 +230,16 @@ func (rpc *EthRPC) EthGasPrice() (big.Int, error) {
 	return ParseBigInt(response)
 }
 
+// EthMaxPriorityFeePerGas returns the current maximum fee per gas the sender is willing to pay to miners in wei.
+func (rpc *EthRPC) EthMaxPriorityFeePerGas() (big.Int, error) {
+	var response string
+	if err := rpc.call("eth_maxPriorityFeePerGas", &response); err != nil {
+		return big.Int{}, err
+	}
+
+	return ParseBigInt(response)
+}
+
 // EthAccounts returns a list of addresses owned by client.
 func (rpc *EthRPC) EthAccounts() ([]string, error) {
 	accounts := []string{}

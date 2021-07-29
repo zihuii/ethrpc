@@ -303,7 +303,7 @@ func (s *EthRPCTestSuite) TestEthMining() {
 
 func (s *EthRPCTestSuite) TestEthHashrate() {
 	s.registerResponseError(errors.New("Error"))
-	hashrate, err := s.rpc.EthHashrate()
+	_, err := s.rpc.EthHashrate()
 	s.Require().NotNil(err)
 
 	s.registerResponse(`"0x38a"`, func(body []byte) {
@@ -311,14 +311,14 @@ func (s *EthRPCTestSuite) TestEthHashrate() {
 		s.paramsEqual(body, "null")
 	})
 
-	hashrate, err = s.rpc.EthHashrate()
+	hashrate, err := s.rpc.EthHashrate()
 	s.Require().Nil(err)
 	s.Require().Equal(906, hashrate)
 }
 
 func (s *EthRPCTestSuite) TestEthGasPrice() {
 	s.registerResponseError(errors.New("Error"))
-	gasPrice, err := s.rpc.EthGasPrice()
+	_, err := s.rpc.EthGasPrice()
 	s.Require().NotNil(err)
 
 	s.registerResponse(`"0x09184e72a000"`, func(body []byte) {
@@ -327,9 +327,25 @@ func (s *EthRPCTestSuite) TestEthGasPrice() {
 	})
 
 	expected, _ := big.NewInt(0).SetString("09184e72a000", 16)
-	gasPrice, err = s.rpc.EthGasPrice()
+	gasPrice, err := s.rpc.EthGasPrice()
 	s.Require().Nil(err)
 	s.Require().Equal(*expected, gasPrice)
+}
+
+func (s *EthRPCTestSuite) TestEthMaxPriorityFeePerGas() {
+	s.registerResponseError(errors.New("Error"))
+	_, err := s.rpc.EthMaxPriorityFeePerGas()
+	s.Require().NotNil(err)
+
+	s.registerResponse(`"0x09184e72a000"`, func(body []byte) {
+		s.methodEqual(body, "eth_maxPriorityFeePerGas")
+		s.paramsEqual(body, "null")
+	})
+
+	expected, _ := big.NewInt(0).SetString("09184e72a000", 16)
+	priorityFee, err := s.rpc.EthMaxPriorityFeePerGas()
+	s.Require().Nil(err)
+	s.Require().Equal(*expected, priorityFee)
 }
 
 func (s *EthRPCTestSuite) TestEthAccounts() {

@@ -18,6 +18,7 @@ Golang client for ethereum [JSON RPC API](https://github.com/ethereum/wiki/wiki/
 - [x] eth_mining
 - [x] eth_hashrate
 - [x] eth_gasPrice
+- [x] eth_maxPriorityFeePerGas (London hard fork)
 - [x] eth_accounts
 - [x] eth_blockNumber
 - [x] eth_getBalance
